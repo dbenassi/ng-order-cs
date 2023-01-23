@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+/*const mongoose = require('mongoose')
 
 const orderDataSchema = new mongoose.Schema({
     id: Number,
@@ -10,4 +10,4 @@ const orderDataSchema = new mongoose.Schema({
 
 })
 
-module.exports = mongoose.model("orders", orderDataSchema)
+module.exports = mongoose.model("orders", orderDataSchema)*/

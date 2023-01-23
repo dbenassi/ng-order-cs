@@ -4,6 +4,9 @@ var router = express.Router();
 const mongoose = require('mongoose')
 const Orders = require('./schema/Order')
 
+const dao = require('./dao');
+const { Router } = require('express');
+
 mongoose.connect("mongodb://127.0.0.1:27017/ordersdb", {
   useNewUrlParser: true, useUnifiedTopology: true
 }, (err) => {
@@ -47,7 +50,7 @@ async function readOrders(){
 }
 
 /* GET orders listing. */
-router.get('/list', function (req, res, next) {
+/*router.get('/list', function (req, res, next) {
 
   //let jsonResDB = readOrders().then(list);
   readOrders().then((result) => {
@@ -56,6 +59,24 @@ router.get('/list', function (req, res, next) {
     console.log(err);
   })
 
-});
+});*/
+
+//GET ALL ORDERS
+router.get('/list', async (req, res) => {
+  dao.getAllOrders()
+     .then((orders) => res.json(orders))
+     .catch((error) => res.status(500).json(error))
+})
+
+//GET ORDER BY DATE
+router.get('/:date', async (req, res) => {
+  const date = req.params.date;
+  dao.getOrdersByDate(date)
+    .then((order) => res.json(order))
+    .catch((err) => res.status(500).json(err))
+})
+
+//TO-DO : CREATE NEW ORDER
+
 
 module.exports = router;
