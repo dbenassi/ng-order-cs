@@ -1,0 +1,27 @@
+<mat-card class="order-card">
+  <mat-card-header>
+    <mat-card-subtitle [ngStyle]="{'background-color': (items.selectedOptions.selected.length > 0) ? 'yellow' : 'transparent'}">
+      {{(items.selectedOptions.selected.length > 0) ? 'Ordine in preparazione' : 'Ordine in attesa'}}
+    </mat-card-subtitle>
+    <mat-card-title>{{order.name}}</mat-card-title>
+    <mat-card-title>{{order.time}}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-selection-list #items (selectionChange)="onSelectedChange()">
+      <mat-list-option *ngFor="let row of order.items">
+        N.{{row.amount}} {{row.item}}
+      </mat-list-option>
+    </mat-selection-list>
+    <p>
+      Options selected: {{items.selectedOptions.selected.length}}
+    </p>
+    <mat-divider></mat-divider>
+  </mat-card-content>
+    <mat-card-actions style="display: flex; justify-content: center;">
+      <button mat-button style="justify-content: center;" (click)="openCompleteDialog()"><mat-icon fontIcon="check" style="color: rgb(56, 139, 28);"></mat-icon></button>
+      <button mat-button style="justify-content: center;" (click)="openDeleteDialog()"><mat-icon fontIcon="delete"></mat-icon></button>
+    </mat-card-actions>
+  <mat-card-footer>
+    <mat-progress-bar [mode]="mode"></mat-progress-bar>
+  </mat-card-footer>
+</mat-card>
