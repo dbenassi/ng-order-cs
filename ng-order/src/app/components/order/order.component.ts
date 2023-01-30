@@ -1,8 +1,24 @@
+import { throwDialogContentAlreadyAttachedError } from '@angular/cdk/dialog';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { MatButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectionList, MatSelectionListChange } from '@angular/material/list';
-import { ProgressBarMode } from '@angular/material/progress-bar';
+import { MatProgressBar, ProgressBarMode } from '@angular/material/progress-bar';
 import { FetchService } from 'src/app/services/fetch.service';
+
+type OrderSQL = {
+  ID: number;
+  NOME: string;
+  DAY: string;
+  TIME: string;
+  COMPLETATO: number;
+}
+
+type ArticleRowSQL = {
+  DESCRIZIONE: string;
+  QUANTITA: number;
+  OPTIONS: string;
+}
 
 //DELETE DIALOG
 @Component({
@@ -28,25 +44,41 @@ export class DialogCompleted {}
 export class OrderComponent implements OnInit {
 
   @ViewChild('items') items!: MatSelectionList;
-  @Input() order?: any;
+  @Input() order!: OrderSQL;
   @Input() today?: number;
 
-  itemOptions?: number;
+  orderItems?: Array<ArticleRowSQL>;
+  itemCount: number = 1;
   selectedItems?: number;
+  isCompleteDisabled: boolean = true;
 
   //ProgressBar parameters
   mode: ProgressBarMode = 'determinate'
   value: number = 0;
-  
 
-  constructor(public dialog: MatDialog, public dialog2: MatDialog){}
+  constructor(public dialog: MatDialog, public dialog2: MatDialog, private fetchService: FetchService){}
 
   ngOnInit(){
     //this.selectedItems= this.items.selectedOptions.select.length;
+    this.fetchService.getOrderRows(this.order.ID).subscribe({
+      next: (response) => {
+        this.orderItems = response;
+        this.itemCount = this.orderItems!.length;
+      },
+      error: (err) => {
+        console.error(err);
+      },
+      complete: () => {
+        console.info('complete')
+      }
+    })
+
   }
 
   onSelectedChange(){
-    this.selectedItems = this.items.selectedOptions.select.length;
+    this.selectedItems = this.items.selectedOptions.selected.length;
+    this.value = (this.selectedItems*100)/this.itemCount!;
+    this.selectedItems === this.itemCount ? this.isCompleteDisabled = false : this.isCompleteDisabled = true;
   }
 
   openDeleteDialog(){
@@ -57,8 +89,9 @@ export class OrderComponent implements OnInit {
     this.dialog2.open(DialogCompleted);
   }
 
-  setCompleted(){
+  /* setCompleted(){
     this.order.completed = true;
-  }
+  } */
+  
     
 }

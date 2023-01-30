@@ -1,20 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const mongoose = require('mongoose')
-const Orders = require('./schema/Order')
-
 const dao = require('./dao');
-const { Router } = require('express');
-
-mongoose.connect("mongodb://127.0.0.1:27017/ordersdb", {
-  useNewUrlParser: true, useUnifiedTopology: true
-}, (err) => {
-  if (err)
-    console.log(err);
-  else
-    console.log("DB connected")
-})
 
 const articles = [
   'Penne all\'arrabbiata',
@@ -76,7 +63,50 @@ router.get('/:date', async (req, res) => {
     .catch((err) => res.status(500).json(err))
 })
 
-//TO-DO : CREATE NEW ORDER
+//GET ORDER BY ID
+router.get('/id/:id', async (req, res) => {
+  const date = req.params.id;
+  dao.getOrdersById(date)
+    .then((order) => res.json(order))
+    .catch((err) => res.status(500).json(err))
+})
 
+//CREATE ORDER
+router.post('/', async (req, res) => {
+  const day = req.body.day;
+  const time = req.body.time;
+  const id_cliente = req.body.id_cliente;
+
+  dao.createOrder(day, time, id_cliente)
+    .then(() => res.end())
+    .catch((err) => res.status(500).json(err))
+})
+
+//DELETE ORDER BY ID
+router.delete('/:id', async(req, res) => {
+  const order_id = req.params.id;
+
+  dao.deleteOrder(order_id)
+    .then(() => res.end())
+    .catch((err) => res.status(500).json(err))
+})
+
+//SET ORDER COMPLETED
+router.put('/:id', async (req, res) => {
+  const order_id = req.params.id;
+
+  dao.setCompleted(order_id)
+    .then(() => res.end())
+    .catch((err) => res.status(500).json(err))
+})
+
+//EDIT ORDER 
+router.put('/edit/:id', async (req, res) => {
+  const order_id = req.params.id;
+
+  dao.setCompleted(order_id)
+    .then(() => res.end())
+    .catch((err) => res.status(500).json(err))
+})
 
 module.exports = router;

@@ -1,0 +1,3 @@
+<div *ngFor="let item of orderList" style="display: inline-flex; margin: 1%;">
+    <app-order [order]="item" *ngIf="todayDate==item.DAY"></app-order>
+</div>

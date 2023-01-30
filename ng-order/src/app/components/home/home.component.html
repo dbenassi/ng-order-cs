@@ -4,27 +4,24 @@
     </button>
     <span style="margin-left: 1%;">Gestione Ordini</span>
     <span class="spacer">{{todayDate}}</span>
+    <button mat-icon-button aria-label="Create new item" >
+        <mat-icon>add</mat-icon>
+    </button>
 </mat-toolbar>
 
 <mat-drawer-container class="main">
     <mat-drawer #drawer class="example-sidenav" mode="side">
         <mat-selection-list #sideMenu multiple="false">
-            <mat-list-option name="Ordini di oggi">
+            <mat-list-option name="ordini-di-oggi" routerLink="/orders">
                 <a aria-label="Ordini di oggi"><mat-icon fontIcon="today"></mat-icon>Ordini di oggi</a>
             </mat-list-option>
-            <mat-list-option name="Gestione menu">
-                <a aria-label="Gestione menu"><mat-icon fontIcon="edit"></mat-icon>Gestione Menu</a>
+            <mat-list-option name="gestione-articoli" routerLink="/articles">
+                <a aria-label="Gestione articoli"><mat-icon fontIcon="edit"></mat-icon>Gestione articoli</a>
             </mat-list-option>
         </mat-selection-list>
     </mat-drawer>
 
     <div class="example-sidenav-content">
-        <!-- TEST COMPONENT -->
-        <div *ngFor="let item of orderList;" style="display: inline-flex; margin: 1%;">
-            <app-order [order]="item" *ngIf="todayDate==item.date"></app-order>
-        </div>
-        <!-- TEST COMPONENT -->
-
         <router-outlet></router-outlet>
     </div>
 

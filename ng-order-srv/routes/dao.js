@@ -2,21 +2,21 @@
 
 const sqlite = require('sqlite3');
 
-const db = new sqlite.Database('orderdb.db', (err) => {if (err) throw err;});
+const db = new sqlite.Database('orderdb.db', (err) => { if (err) throw err; });
 
 /*TABLE: ORDINE*/
 
 //Get all orders
 exports.getAllOrders = () => {
-    const SQL_GETALL = `SELECT ORDINE.ID, CLIENTE.NOME, DAY, TIME, TOTALE, COMPLETATO
+    const SQL_GETALL = `SELECT ORDINE.ID AS ID, NOME, DAY, TIME, TOTALE, COMPLETATO
                         FROM CLIENTE JOIN ORDINE ON CLIENTE.ID = ORDINE.ID_CLIENTE`
 
     return new Promise((resolve, reject) => {
         db.all(SQL_GETALL, (err, rows) => {
-            if(err)
+            if (err)
                 reject(err);
-            else if(rows === undefined)
-                reject({ error: 'Empty DB!'});
+            else if (rows === undefined)
+                reject({ error: 'Empty DB!' });
             else
                 resolve(rows);
         })
@@ -25,33 +25,55 @@ exports.getAllOrders = () => {
 
 //Get orders by date
 exports.getOrdersByDate = (day) => {
-    const SQL_GETBYDATE = `SELECT ORDINE.ID, CLIENTE.NOME, DAY, TIME, TOTALE, COMPLETATO
+    const SQL_GETBYDATE = `SELECT ORDINE.ID AS ID, NOME, DAY, TIME, TOTALE, COMPLETATO
                            FROM CLIENTE JOIN ORDINE ON CLIENTE.ID = ORDINE.ID_CLIENTE
                            WHERE DAY=?`
-    
+
     return new Promise((resolve, reject) => {
-        db.get(SQL_GETBYDATE, [day], (err, rows) => {
-            if(err)
+        db.all(SQL_GETBYDATE, [day], (err, rows) => {
+            if (err)
                 reject(err);
-            else if(rows === undefined)
-                reject({error: 'There are no orders for the selected date.'});
+            else if (rows === undefined)
+                reject({ error: 'There are no orders for the selected date.' });
             else
                 resolve(rows);
         })
     })
 }
 
+//Get order by ID
+exports.getOrderById = (id) => {
+    const SQL_GETBYID = `SELECT ORDINE.ID, CLIENTE.NOME, ORDINE.DAY, ORDINE.TIME, ORDINE.TOTALE, ORDINE.COMPLETATO,
+                         FROM CLIENTE JOIN ORDINE ON CLIENTE.ID=ORDINE.ID_CLIENTE
+                         WHERE ORDINE.ID=?`
+
+    return new Promise((resolve, reject) => {
+
+        db.get(SQL_GETBYID, [id], (err, rows) => {
+            if (err)
+                reject(err);
+            else if (rows === undefined)
+                reject({ error: 'Order not found' })
+            else
+                resolve(rows)
+        })
+    })
+}
+
+
 //Set order completed
 exports.setCompleted = (id) => {
     const SQL_SETCOMPLETED = `UPDATE ORDINE
                               SET COMPLETATO=1
                               WHERE ID=?`
-    
-    db.run(SQL_SETCOMPLETED, [id], (err) => {
-        if(err)
-            reject(err);
-        else
-            resolve(true)
+
+    return new Promise((resolve, reject) => {
+        db.run(SQL_SETCOMPLETED, [id], (err) => {
+            if (err)
+                reject(err);
+            else
+                resolve(true)
+        })
     })
 }
 
@@ -59,40 +81,45 @@ exports.setCompleted = (id) => {
 exports.deleteOrder = (id) => {
     const SQL_DELETE = `DELETE FROM ORDINE WHERE ID=?`
 
-    db.run(SQL_DELETE, [id], (err) => {
-        if(err)
-            reject(err);
-        else
-            resolve(true);
+    return new Promise((resolve, reject) => {
+        db.run(SQL_DELETE, [id], (err) => {
+            if (err)
+                reject(err);
+            else
+                resolve(true);
+        })
     })
 }
 
-//Edit order date
-exports.editOrderDate = (id, new_day) => {
+//Edit order
+exports.editOrder = (id, new_day, new_time) => {
     const SQL_EDIT = `UPDATE ORDINE
-                      SET DAY=?
+                      SET DAY=?, TIME=?
                       WHERE ID=?`
 
-    db.run(SQL_EDIT, [new_day, id], (err) => {
-        if(err)
-            reject(err)
-        else    
-            resolve(true)
+    return new Promise((resolve, reject) => {
+        db.run(SQL_EDIT, [new_day, new_time, id], (err) => {
+            if (err)
+                reject(err)
+            else
+                resolve(true)
+        })
     })
-
-}
-
-//Edit order time
-exports.editOrderTime = (id, new_time) => {
-    const SQL_EDIT = `UPDATE ORDINE
-                      SET TIME=?
-                      WHERE ID=?`
     
-    db.run(SQL_EDIT, [new_time, id], (err) => {
-        if(err)
-            reject(err);
-        else
-            resolve(true);
+
+}
+
+exports.createOrder = (day, time, id_cliente) => {
+    const SQL_CREATEORDER = `INSERT INTO ORDINE(ID_CLIENTE, DAY, TIME)
+                             VALUES(?, ?, ?)`
+
+    return new Promise((resolve, reject) => {
+        db.run(SQL_CREATEORDER, [id_cliente, day, time], (err) => {
+            if (err)
+                reject(err)
+            else
+                resolve(true)
+        })
     })
 }
 
@@ -102,45 +129,35 @@ exports.editOrderTime = (id, new_time) => {
 
 //Get order rows
 exports.getRows = (order_id) => {
-    const SQL_GETROWS = `SELECT ARTICOLO.DESCRIZIONE, QUANTITA, OPTIONS
+    const SQL_GETROWS = `SELECT DESCRIZIONE, QUANTITA, OPTIONS
                          FROM RIGA JOIN ARTICOLO ON RIGA.ID_ARTICOLO=ARTICOLO.ID
                          WHERE RIGA.ID_ORDINE=?`
 
-    db.get(SQL_GETROWS, [order_id], (err, rows) => {
-        if(err)
-            reject(err);
-        else if(rows === undefined)
-            reject({error: 'Empry order'});
-        else
-            resolve(rows);
+    return new Promise((resolve, reject) => {
+        db.all(SQL_GETROWS, [order_id], (err, rows) => {
+            if (err)
+                reject(err);
+            else if (rows === undefined)
+                reject({ error: 'Empry order' });
+            else
+                resolve(rows);
+        })
     })
+
 }
 
-//Edit row amount
-exports.editAmount = (id, new_amount) => {
+//Edit row
+exports.editRow = (id, new_amount, new_options) => {
     const SQL_EDITAMOUNT = `UPDATE RIGA
-                            SET QUANTITA=?
+                            SET QUANTITA=?, OPTIONS=?
                             WHERE ID=?`
-
-    db.run(SQL_EDITAMOUNT, [new_amount, id], (err) => {
-        if(err)
-            reject(err)
-        else
-            resolve(true)
-    })
-}
-
-//Edit row options
-exports.setOptions = (id, options) => {
-    const SQL_SETOPTIONS = `UPDATE RIGA
-                            SET OPTIONS=?
-                            WHERE ID=?`
-
-    db.run(SQL_SETOPTIONS, [options, id], (err) => {
-        if(err)
-            reject(err);
-        else
-            resolve(true);
+    return new Promise((resolve, reject) => {
+        db.run(SQL_EDITAMOUNT, [new_amount, new_options, id], (err) => {
+            if (err)
+                reject(err)
+            else
+                resolve(true)
+        })
     })
 }
 
@@ -148,16 +165,32 @@ exports.setOptions = (id, options) => {
 exports.createRow = (order_id, article_id, amount, options) => {
     const SQL_CREATEROW = `INSERT INTO RIGA(ID_ORDINE, ID_ARTICOLO, QUANTITA, OPTIONS) 
                            VALUES(?, ?, ?, ?)`
-    
-    db.run(SQL_CREATEROW, [order_id, article_id, amount, options], (err) => {
-        if(err)
-            reject(err);
-        else    
-            resolve(true);
+
+    return new Promise((resolve, reject) => {
+        db.run(SQL_CREATEROW, [order_id, article_id, amount, options], (err) => {
+            if (err)
+                reject(err);
+            else
+                resolve(true);
+        })
     })
+    
 }
 
+//Delete row
+exports.deleteRow = (row_id) => {
+    const SQL_DELETEROW = `DELETE FROM RIGA WHERE RIGA.ID=?`
 
+    return new Promise((resolve, reject) => {
+        db.run(SQL_DELETEROW, [row_id], (err) => {
+            if (err)
+                reject(err)
+            else
+                resolve(true)
+        })
+    })
+    
+}
 
 /********************************************/
 
@@ -168,14 +201,17 @@ exports.getAllArticles = () => {
     const SQL_GETROWS = `SELECT *
                          FROM ARTICOLO`
 
-    db.get(SQL_GETROWS, (err, rows) => {
-        if(err)
-            reject(err);
-        else if(rows === undefined)
-            reject({error: 'No articles in memory'});
-        else
-            resolve(rows);
+    return new Promise((resolve, reject) => {
+        db.all(SQL_GETROWS, (err, rows) => {
+            if (err)
+                reject(err);
+            else if (rows === undefined)
+                reject({ error: 'No articles in memory' });
+            else
+                resolve(rows);
+        })
     })
+    
 }
 
 //Get article by ID
@@ -184,13 +220,15 @@ exports.getArticleById = (id) => {
                          FROM ARTICOLO
                          WHERE ID=?`
 
-    db.get(SQL_GETROWS, [id], (err, rows) => {
-        if(err)
-            reject(err);
-        else if(rows === undefined)
-            reject({error: 'Article not found'});
-        else
-            resolve(rows);
+    return new Promise((resolve, reject) => {
+        db.get(SQL_GETROWS, [id], (err, rows) => {
+            if (err)
+                reject(err);
+            else if (rows === undefined)
+                reject({ error: 'Article not found' });
+            else
+                resolve(rows);
+        })
     })
 }
 
@@ -198,11 +236,13 @@ exports.getArticleById = (id) => {
 exports.deleteArticle = (id) => {
     const SQL_DELETEARTICLE = `DELETE FROM ARTICOLO WHERE ID=?`
 
-    db.run(SQL_DELETEARTICLE, [id], (err) => {
-        if(err)
-            reject(err);
-        else    
-            resolve(true);
+    return new Promise((resolve, reject) => {
+        db.run(SQL_DELETEARTICLE, [id], (err) => {
+            if (err)
+                reject(err);
+            else
+                resolve(true);
+        })
     })
 }
 
@@ -211,23 +251,28 @@ exports.editArticle = (id, desc, price) => {
     const SQL_EDITNAME = `UPDATE ARTICOLO
                           SET DESCRIZIONE=?, PREZZO=?
                           WHERE ID=?`
-    
-    db.run(SQL_EDITNAME, [desc, price, id], (err) => {
-        if(err)
-            reject(err)
-        else
-            resolve(true)
+
+    return new Promise((resolve, reject) => {
+        db.run(SQL_EDITNAME, [desc, price, id], (err) => {
+            if (err)
+                reject(err)
+            else
+                resolve(true)
+        })
     })
+    
 }
 
 //Create new article
 exports.createArticle = (desc, price) => {
     const SQL_CREATE = `INSERT INTO ARTICOLO(DESCRIZIONE, PREZZO) VALUES(?, ?)`;
 
-    db.run(SQL_CREATE, [desc, price], (err) => {
-        if(err)
-            reject(err);
-        else
-            resolve(true);
+    return new Promise((resolve, reject) => {
+        db.run(SQL_CREATE, [desc, price], (err) => {
+            if (err)
+                reject(err);
+            else
+                resolve(true);
+        })
     })
 }
