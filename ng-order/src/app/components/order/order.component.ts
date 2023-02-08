@@ -11,6 +11,7 @@ type OrderSQL = {
   NOME: string;
   DAY: string;
   TIME: string;
+  TOTALE: string;
   COMPLETATO: number;
 }
 

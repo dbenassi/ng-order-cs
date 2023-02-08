@@ -18,7 +18,7 @@
     <!-- Weight Column -->
     <ng-container matColumnDef="PREZZO">
       <th mat-header-cell *matHeaderCellDef> Prezzo </th>
-      <td mat-cell *matCellDef="let element"> {{element.PREZZO}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.PREZZO | number: '1.2'}} </td>
     </ng-container>
   
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

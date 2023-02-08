@@ -1,4 +1,4 @@
-import { NumberSymbol } from '@angular/common';
+import { DecimalPipe, NumberSymbol } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FetchService } from 'src/app/services/fetch.service';
 
@@ -19,7 +19,7 @@ export class ArticleboardComponent implements OnInit {
   articleList!: Array<ArticleSQL>;
   displayedColumns: string[] = ['ID', 'DESCRIZIONE', 'PREZZO'];
 
-  constructor(private fetchService : FetchService){}
+  constructor(private fetchService : FetchService, public decimalPipe : DecimalPipe){}
 
   ngOnInit(): void {
     this.fetchService.getArticles().subscribe({
@@ -32,7 +32,6 @@ export class ArticleboardComponent implements OnInit {
       },
       complete: () => console.info('complete')
     })      
-
   }
 
 

@@ -12,9 +12,7 @@
         N.{{row.QUANTITA}} {{row.DESCRIZIONE}}
       </mat-list-option>
     </mat-selection-list>
-    <p>
-    <!--   Options selected: {{items.selectedOptions.selected.length}}
-     --></p>
+    <p>Totale ordine: {{order.TOTALE | number: '1.2'}} €</p>
     <mat-divider></mat-divider>
   </mat-card-content>
     <mat-card-actions style="display: flex; justify-content: center;">

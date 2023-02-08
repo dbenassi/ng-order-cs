@@ -27,9 +27,10 @@ import { AppComponent } from './app.component';
 import { DialogCompleted, DialogDelete, OrderComponent } from './components/order/order.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HomeComponent } from './components/home/home.component';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { OrderboardComponent } from './components/orderboard/orderboard/orderboard.component';
 import { ArticleboardComponent } from './components/articleboard/articleboard.component';
+import { NewDialogComponent } from './components/new-dialog/new-dialog.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { ArticleboardComponent } from './components/articleboard/articleboard.co
     DialogDelete,
     DialogCompleted,
     OrderboardComponent,
-    ArticleboardComponent
+    ArticleboardComponent,
+    NewDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -65,7 +67,8 @@ import { ArticleboardComponent } from './components/articleboard/articleboard.co
   ],
   providers: [
     FetchService,
-    DatePipe
+    DatePipe,
+    DecimalPipe
   ],
   bootstrap: [AppComponent]
 })

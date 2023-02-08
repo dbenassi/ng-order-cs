@@ -7,6 +7,7 @@ type OrderSQL = {
   NOME: string;
   DAY: string;
   TIME: string;
+  TOTALE: string;
   COMPLETATO: number;
 }
 
@@ -28,7 +29,6 @@ export class OrderboardComponent implements OnInit {
     this.fetchService.getTodayOrders().subscribe({
       next: (response) => {
 
-        console.log(response)
         this.orderList = response.sort((a: OrderSQL, b: OrderSQL) => {
           if(a.TIME>b.TIME)
             return 1
